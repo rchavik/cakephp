@@ -347,6 +347,16 @@ class DboMysqlTest extends CakeTestCase {
 		$result = $this->db->index('with_multiple_compound_keys', false);
 		$this->assertEqual($expected, $result);
 		$this->db->query('DROP TABLE ' . $name);
+
+		$name = $this->db->fullTableName('simple_fulltext');
+		$this->db->query('CREATE TABLE ' . $name . ' (id int(11) AUTO_INCREMENT, full_text text, primary key(id), FULLTEXT INDEX `index_fulltext` ( `full_text` )) ENGINE=MyISAM;');
+		$expected = array(
+			'PRIMARY' => array('column' => 'id', 'unique' => 1),
+			'index_fulltext' => array('column' => 'full_text', 'unique' => 0, 'type' => 'fulltext')
+		);
+		$result = $this->db->index('simple_fulltext', false);
+		$this->assertEqual($expected, $result);
+		$this->db->query('DROP TABLE ' . $name);
 	}
 
 /**

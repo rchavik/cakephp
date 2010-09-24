@@ -712,6 +712,25 @@ class CakeSchemaTest extends CakeTestCase {
 
 		eval(substr($result, 4));
 		$this->assertEqual($posts, $fields);
+
+		$fields = array(
+			'id' => array('type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'),
+			'author_id' => array('type' => 'integer', 'null' => false),
+			'title' => array('type' => 'string', 'null' => false),
+			'body' => array('type' => 'text', 'null' => true, 'default' => null),
+			'published' => array('type' => 'string', 'null' => true, 'default' => 'N', 'length' => 1),
+			'created' => array('type' => 'datetime', 'null' => true, 'default' => null),
+			'updated' => array('type' => 'datetime', 'null' => true, 'default' => null),
+			'indexes' => array(
+				'PRIMARY' => array('column' => 'id', 'unique' => true),
+				'index_fulltext' => array('type' => 'fulltext', 'column' => array('body'))
+			),
+		);
+		$result = $this->Schema->generateTable('posts', $fields);
+		$this->assertPattern('/\'type\' \=\> \'fulltext\'/', $result);
+
+		eval(substr($result, 4));
+		$this->assertEqual($posts, $fields);
 	}
 /**
  * testSchemaWrite method

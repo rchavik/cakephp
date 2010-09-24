@@ -270,6 +270,9 @@ class DboMysqlBase extends DboSource {
 					$col = array();
 					$index[$key['Key_name']]['column'] = $key['Column_name'];
 					$index[$key['Key_name']]['unique'] = intval($key['Non_unique'] == 0);
+					if ($key['Index_type'] == 'FULLTEXT') {
+						$index[$key['Key_name']]['type'] = strtolower($key['Index_type']);
+					}
 				} else {
 					if (!is_array($index[$key['Key_name']]['column'])) {
 						$col[] = $index[$key['Key_name']]['column'];
@@ -400,22 +403,9 @@ class DboMysqlBase extends DboSource {
 			}
 		}
 		if (isset($indexes['add'])) {
-			foreach ($indexes['add'] as $name => $value) {
-				$out = 'ADD ';
-				if ($name == 'PRIMARY') {
-					$out .= 'PRIMARY ';
-					$name = null;
-				} else {
-					if (!empty($value['unique'])) {
-						$out .= 'UNIQUE ';
-					}
-				}
-				if (is_array($value['column'])) {
-					$out .= 'KEY '. $name .' (' . implode(', ', array_map(array(&$this, 'name'), $value['column'])) . ')';
-				} else {
-					$out .= 'KEY '. $name .' (' . $this->name($value['column']) . ')';
-				}
-				$alter[] = $out;
+			$add = $this->buildIndex($indexes['add']);
+			foreach ($add as $built) {
+				$alter[] = 'ADD '.$built;
 			}
 		}
 		return $alter;
