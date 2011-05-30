@@ -1393,6 +1393,7 @@ class Model extends Overloadable {
 				} else {
 					$dbMulti = $db;
 				}
+				$keep = $this->hasAndBelongsToMany[$assoc]['unique'] === true;
 
 				$isUUID = !empty($this->{$join}->primaryKey) && (
 						$this->{$join}->_schema[$this->{$join}->primaryKey]['length'] == 36 && (
@@ -1401,7 +1402,7 @@ class Model extends Overloadable {
 					)
 				);
 
-				$newData = $newValues = array();
+				$newData = $newValues = $newJoins = array();
 				$primaryAdded = false;
 
 				$fields =  array(
@@ -1417,6 +1418,7 @@ class Model extends Overloadable {
 
 				foreach ((array)$data as $row) {
 					if ((is_string($row) && (strlen($row) == 36 || strlen($row) == 16)) || is_numeric($row)) {
+						$newJoins[] = $row;
 						$values = array(
 							$dbMulti->value($id, $this->getColumnType($this->primaryKey)),
 							$dbMulti->value($row)
@@ -1425,7 +1427,7 @@ class Model extends Overloadable {
 							$values[] = $db->value(String::uuid());
 						}
 						$values = implode(',', $values);
-						$newValues[] = "({$values})";
+						$newValues[$row] = "({$values})";
 						unset($values);
 					} elseif (isset($row[$this->hasAndBelongsToMany[$assoc]['associationForeignKey']])) {
 						$newData[] = $row;
@@ -1441,15 +1443,15 @@ class Model extends Overloadable {
 					if (!empty($this->hasAndBelongsToMany[$assoc]['conditions'])) {
 						$conditions = array_merge($conditions, (array)$this->hasAndBelongsToMany[$assoc]['conditions']);
 					}
+					$associationForeignKey = "{$join}." . $this->hasAndBelongsToMany[$assoc]['associationForeignKey'];
 					$links = $this->{$join}->find('all', array(
 						'conditions' => $conditions,
 						'recursive' => empty($this->hasAndBelongsToMany[$assoc]['conditions']) ? -1 : 0,
-						'fields' => $this->hasAndBelongsToMany[$assoc]['associationForeignKey']
+						'fields' => $associationForeignKey,
 					));
 
-					$associationForeignKey = "{$join}." . $this->hasAndBelongsToMany[$assoc]['associationForeignKey'];
 					$oldLinks = Set::extract($links, "{n}.{$associationForeignKey}");
-					if (!empty($oldLinks)) {
+					if (!empty($oldLinks) && ($keep === true && empty($newJoins))) {
  						$conditions[$associationForeignKey] = $oldLinks;
 						$dbMulti->delete($this->{$join}, $conditions);
 					}
@@ -1465,7 +1467,20 @@ class Model extends Overloadable {
 
 				if (!empty($newValues)) {
 					$fields = implode(',', $fields);
-					$dbMulti->insertMulti($this->{$join}, $fields, $newValues);
+					if ($keep) {
+						foreach ($links as $link) {
+							$oldJoin = $link[$join][$this->hasAndBelongsToMany[$assoc]['associationForeignKey']];
+							if (! in_array($oldJoin, $newJoins) ) {
+								$conditions[$associationForeignKey] = $oldJoin;
+								$db->delete($this->{$join}, $conditions);
+							} else {
+								unset($newValues[$oldJoin]);
+							}
+						}
+					}
+					if (!empty($newValues)) {
+						$dbMulti->insertMulti($this->{$join}, $fields, $newValues);
+					}
 				}
 			}
 		}
