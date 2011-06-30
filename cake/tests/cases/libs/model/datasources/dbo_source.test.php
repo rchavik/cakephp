@@ -3642,6 +3642,13 @@ class DboSourceTest extends CakeTestCase {
 		$result = $this->testDb->buildIndex($data);
 		$expected = array('UNIQUE KEY `MyIndex` (`id`, `name`)');
 		$this->assertEqual($result, $expected);
+
+		$data = array(
+			'index_fulltext' => array('column' => array('description', 'name'), 'unique' => false, 'type' => 'fulltext')
+		);
+		$result = $this->testDb->buildIndex($data);
+		$expected = array('FULLTEXT INDEX `index_fulltext` (`description`, `name`)');
+		$this->assertEqual($result, $expected);
 	}
 
 /**
