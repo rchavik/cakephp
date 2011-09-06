@@ -791,4 +791,19 @@ class TimeHelperTest extends CakeTestCase {
 		$expected = $serverTimezone->getOffset(new DateTime('now'));
 		$this->assertEqual($expected, $result);
 	}
+	
+/**
+ * test if the value Config.timezone is currently used in the helper
+ *
+ * @return void
+ */
+	public function testConfiguredTimezone() {
+		Configure::write('Config.timezone', 'Europe/Brussels');
+		$date = new DateTime('2010-10-10 10:10:10', new DateTimeZone('UTC'));
+		$result = $this->Time->fromString($date);
+		$expected = 'Europe/Brussels';
+		$this->assertEqual($expected, $result->getTimeZone()->getName());
+		$expected = '2010-10-10 12:10:10';
+		$this->assertEqual($expected, $result->format('Y-m-d H:i:s'));
+	}
 }

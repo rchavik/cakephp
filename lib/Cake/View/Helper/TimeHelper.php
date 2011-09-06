@@ -203,7 +203,7 @@ class TimeHelper extends AppHelper {
  * @return string Parsed timestamp
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
-	public function fromString($dateString, $timezoneString = null) {
+	public function fromString($dateString, $timezone = null) {
 		if (empty($dateString)) {
 			return false;
 		}
@@ -215,21 +215,34 @@ class TimeHelper extends AppHelper {
 		} else {
 			$date = date_create($dateString);
 		}
-
-		if (is_object($timezoneString)) {
-			$timezone = $timezoneString;
-		} elseif (is_string($timezoneString)) {
-			$timezone = new DateTimeZone($timezoneString);
-		} else {
-			$timezone = null;
+		if (!$date) {
+			return false;
 		}
+		$timezone = $this->timezone($timezone);
 		if ($timezone !== null) {
 			$date->setTimeZone($timezone);
 		}
-		if ($date === null) {
-			return false;
-		}
 		return $date;
+	}
+
+/**
+ * Returns a timezone object from a string or the user's timezone object
+ *
+ * @param mixed $timezone DateTimeZone object or a timezone name
+ * @return DateTimeZone
+ */
+	public function timezone($timezone = null) {
+		if (is_object($timezone)) {
+			return $timezone;
+		}
+		if ($timezone === null) {
+			$timezone = Configure::read('Config.timezone');
+		}
+		if ($timezone === null) {
+			$timezone = date_default_timezone_get();
+		}
+
+		return new DateTimeZone($timezone);
 	}
 
 /**
