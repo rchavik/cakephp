@@ -185,7 +185,7 @@ class TimeHelper extends AppHelper {
 	}
 
 /**
- * Returns server's offset from GMT in seconds.
+ * Returns server's offset from UTC in seconds.
  *
  * @return integer Offset
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
@@ -199,8 +199,8 @@ class TimeHelper extends AppHelper {
  * Timezone can be a string or a DateTimeZone object.
  *
  * @param mixed $dateString Datetime string
- * @param mixed $timezone User's timezone
- * @return string Parsed timestamp
+ * @param mixed $timezone timezone name or DateTimeZone object
+ * @return DateTime DateTime object with the correct timezone
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
 	public function fromString($dateString, $timezone = null) {
@@ -246,13 +246,13 @@ class TimeHelper extends AppHelper {
 	}
 
 /**
- * Returns a nicely formatted date string for given Datetime string.
+ * Returns a nicely formatted date string for given Datetime string, DateTime object or UNIX time.
  *
  * See http://php.net/manual/en/function.strftime.php for information on formatting
  * using locale strings.
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @param string $format The format to use. If null, `TimeHelper::$niceFormat` is used
  * @return string Formatted date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
@@ -278,8 +278,8 @@ class TimeHelper extends AppHelper {
  * If $dateString's year is the current year, the returned string does not
  * include mention of the year.
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return string Described, relative date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
@@ -303,10 +303,10 @@ class TimeHelper extends AppHelper {
 /**
  * Returns a partial SQL string to search for all records between two dates.
  *
- * @param string $begin Datetime string or Unix timestamp
- * @param string $end Datetime string or Unix timestamp
+ * @param mixed $begin Datetime string, DateTime object or Unix timestamp
+ * @param mixed $end Datetime string, DateTime object or Unix timestamp
  * @param string $fieldName Name of database field to compare with
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return string Partial SQL string.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
@@ -323,9 +323,9 @@ class TimeHelper extends AppHelper {
  * Returns a partial SQL string to search for all records between two times
  * occurring on the same day.
  *
- * @param string $dateString Datetime string or Unix timestamp
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
  * @param string $fieldName Name of database field to compare with
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return string Partial SQL string.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
@@ -336,8 +336,8 @@ class TimeHelper extends AppHelper {
 /**
  * Returns true if given datetime string is today.
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return boolean True if datetime string is today
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#testing-time
  */
@@ -349,8 +349,8 @@ class TimeHelper extends AppHelper {
 /**
  * Returns true if given datetime string is within this week.
  *
- * @param string $dateString
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return boolean True if datetime string is within current week
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#testing-time
  */
@@ -361,8 +361,8 @@ class TimeHelper extends AppHelper {
 
 /**
  * Returns true if given datetime string is within this month
- * @param string $dateString
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return boolean True if datetime string is within current month
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#testing-time
  */
@@ -374,8 +374,8 @@ class TimeHelper extends AppHelper {
 /**
  * Returns true if given datetime string is within current year.
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return boolean True if datetime string is within current year
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#testing-time
  */
@@ -387,8 +387,8 @@ class TimeHelper extends AppHelper {
 /**
  * Returns true if given datetime string was yesterday.
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return boolean True if datetime string was yesterday
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#testing-time
  *
@@ -401,8 +401,8 @@ class TimeHelper extends AppHelper {
 /**
  * Returns true if given datetime string is tomorrow.
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return boolean True if datetime string was yesterday
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#testing-time
  */
@@ -414,7 +414,7 @@ class TimeHelper extends AppHelper {
 /**
  * Returns the quarter
  *
- * @param string $dateString
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
  * @param boolean $range if true returns a range in Y-m-d format
  * @return mixed 1, 2, 3, or 4 quarter of year or array if $range true
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
@@ -445,10 +445,10 @@ class TimeHelper extends AppHelper {
 	}
 
 /**
- * Returns a UNIX timestamp from a textual datetime description. Wrapper for PHP function strtotime().
+ * Returns a UNIX timestamp from a textual datetime description.
  *
- * @param string $dateString Datetime string to be represented as a Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return integer Unix timestamp
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
@@ -463,8 +463,8 @@ class TimeHelper extends AppHelper {
 /**
  * Returns a date formatted for Atom RSS feeds.
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return string Formatted date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
@@ -476,8 +476,8 @@ class TimeHelper extends AppHelper {
 /**
  * Formats date for RSS feeds
  *
- * @param string $dateString Datetime string or Unix timestamp
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return string Formatted date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
@@ -489,13 +489,13 @@ class TimeHelper extends AppHelper {
 /**
  * Returns either a relative date or a formatted date depending
  * on the difference between the current time and given datetime.
- * $datetime should be in a <i>strtotime</i> - parsable format, like MySQL's datetime datatype.
+ * $datetime can be in a <i>strtotime</i> - parsable format, DateTime object or Unix timestamp
  *
  * ### Options:
  *
  * - `format` => a fall back format if the relative time is longer than the duration specified by end
  * - `end` => The end of relative time telling
- * - `timezone` => Users offset from GMT (in hours)
+ * - `timezone` => User's timezone name or DateTimeZone object
  *
  * Relative dates look something like this:
  *	3 weeks, 4 days ago
@@ -669,8 +669,8 @@ class TimeHelper extends AppHelper {
  *
  * @param mixed $timeInterval the numeric value with space then time type.
  *    Example of valid types: 6 hours, 2 days, 1 minute.
- * @param mixed $dateString the datestring or unix timestamp to compare
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return boolean
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#testing-time
  */
@@ -691,15 +691,15 @@ class TimeHelper extends AppHelper {
 	}
 
 /**
- * Returns gmt as a UNIX timestamp.
+ * Returns UTC, given either a UNIX timestamp, a valid strtotime() date string or a DateTime object.
  *
- * @param string $string UNIX timestamp or a valid strtotime() date string
- * @return integer UNIX timestamp
+ * @param mixed $dateString Datetime string, DateTime object or Unix timestamp
+ * @return string Formatted date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
-	public function utc($string = null) {
-		if ($string !== null) {
-			$date = $this->fromString($string);
+	public function utc($dateString = null) {
+		if ($dateString !== null) {
+			$date = $this->fromString($dateString);
 		} else {
 			$date = new DateTime('now');
 		}
@@ -708,14 +708,14 @@ class TimeHelper extends AppHelper {
 	}
 
 /**
- * Returns a formatted date string, given either a UNIX timestamp or a valid strtotime() date string.
+ * Returns a formatted date string, given either a UNIX timestamp, a valid strtotime() date string or a DateTime object.
  * This function also accepts a time string and a format string as first and second parameters.
  * In that case this function behaves as a wrapper for TimeHelper::i18nFormat()
  *
  * @param string $format date format string (or a DateTime string)
- * @param string $date Datetime string (or a date format string)
+ * @param mixed $date Datetime string, DateTime object or Unix timestamp
  * @param boolean $invalid flag to ignore results of fromString == false
- * @param integer $userOffset User's offset from GMT (in hours)
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return string Formatted date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
@@ -734,13 +734,13 @@ class TimeHelper extends AppHelper {
 	}
 
 /**
- * Returns a formatted date string, given either a UNIX timestamp or a valid strtotime() date string.
+ * Returns a formatted date string, given either a UNIX timestamp, a valid strtotime() date string or a DateTime object.
  * It take in account the default date format for the current language if a LC_TIME file is used.
  *
- * @param string $date Datetime string
+ * @param mixed $date Datetime string, DateTime object or Unix timestamp
  * @param string $format strftime format string.
  * @param boolean $invalid flag to ignore results of fromString == false
- * @param integer $timezone User's timezone string or TimeZone object
+ * @param mixed $timezone User's timezone name or DateTimeZone object
  * @return string Formatted and translated date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
