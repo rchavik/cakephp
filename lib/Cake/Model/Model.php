@@ -1639,7 +1639,18 @@ class Model extends Object {
 		}
 
 		if (!empty($joined) && $success === true) {
-			$this->_saveMulti($joined, $this->id, $db);
+			$joinModel = is_array($joined) ? key($joined) : false;
+			if ($joinModel && !empty($this->hasAndBelongsToMany[$joinModel]['with'])) {
+				if (is_array($this->hasAndBelongsToMany[$joinModel]['with'])) {
+					$habtmModel = key($this->hasAndBelongsToMany[$joinModel]['with']);
+				} else {
+					$habtmModel = $this->hasAndBelongsToMany[$joinModel]['with'];
+				}
+				$dbHabtm = $this->{$habtmModel}->getDataSource();
+				$this->_saveMulti($joined, $this->id, $dbHabtm);
+			} else {
+				$this->_saveMulti($joined, $this->id, $db);
+			}
 		}
 
 		if ($success && $count > 0) {
@@ -1679,6 +1690,8 @@ class Model extends Object {
 				list($join) = $this->joinModel($this->hasAndBelongsToMany[$assoc]['with']);
 
 				$keyInfo = $this->{$join}->schema($this->{$join}->primaryKey);
+				$keep = $this->hasAndBelongsToMany[$assoc]['unique'] === true;
+
 				$isUUID = !empty($this->{$join}->primaryKey) && (
 						$keyInfo['length'] == 36 && (
 						$keyInfo['type'] === 'string' ||
@@ -1686,7 +1699,7 @@ class Model extends Object {
 					)
 				);
 
-				$newData = $newValues = array();
+				$newData = $newValues = $newJoins = array();
 				$primaryAdded = false;
 
 				$fields =  array(
@@ -1702,11 +1715,12 @@ class Model extends Object {
 
 				foreach ((array)$data as $row) {
 					if ((is_string($row) && (strlen($row) == 36 || strlen($row) == 16)) || is_numeric($row)) {
+						$newJoins[] = $row;
 						$values = array($id, $row);
 						if ($isUUID && $primaryAdded) {
 							$values[] = String::uuid();
 						}
-						$newValues[] = $values;
+						$newValues[$row] = $values;
 						unset($values);
 					} elseif (isset($row[$this->hasAndBelongsToMany[$assoc]['associationForeignKey']])) {
 						$newData[] = $row;
@@ -1722,15 +1736,15 @@ class Model extends Object {
 					if (!empty($this->hasAndBelongsToMany[$assoc]['conditions'])) {
 						$conditions = array_merge($conditions, (array)$this->hasAndBelongsToMany[$assoc]['conditions']);
 					}
+					$associationForeignKey = "{$join}." . $this->hasAndBelongsToMany[$assoc]['associationForeignKey'];
 					$links = $this->{$join}->find('all', array(
 						'conditions' => $conditions,
 						'recursive' => empty($this->hasAndBelongsToMany[$assoc]['conditions']) ? -1 : 0,
-						'fields' => $this->hasAndBelongsToMany[$assoc]['associationForeignKey']
+						'fields' => $associationForeignKey,
 					));
 
-					$associationForeignKey = "{$join}." . $this->hasAndBelongsToMany[$assoc]['associationForeignKey'];
 					$oldLinks = Set::extract($links, "{n}.{$associationForeignKey}");
-					if (!empty($oldLinks)) {
+					if (!empty($oldLinks) && ($keep === true && empty($newJoins))) {
  						$conditions[$associationForeignKey] = $oldLinks;
 						$db->delete($this->{$join}, $conditions);
 					}
@@ -1745,7 +1759,21 @@ class Model extends Object {
 				}
 
 				if (!empty($newValues)) {
-					$db->insertMulti($this->{$join}, $fields, $newValues);
+					if ($keep) {
+						foreach ($links as $link) {
+							$oldJoin = $link[$join][$this->hasAndBelongsToMany[$assoc]['associationForeignKey']];
+							if (! in_array($oldJoin, $newJoins) ) {
+								$conditions[$associationForeignKey] = $oldJoin;
+								$db->delete($this->{$join}, $conditions);
+							} else {
+								unset($newValues[$oldJoin]);
+							}
+						}
+						$newValues = array_values($newValues);
+					}
+					if (!empty($newValues)) {
+						$db->insertMulti($this->{$join}, $fields, $newValues);
+					}
 				}
 			}
 		}

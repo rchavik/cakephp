@@ -1623,7 +1623,16 @@ class DboSource extends DataSource {
 			$data['conditions'] = trim($this->conditions($data['conditions'], true, false));
 		}
 		if (!empty($data['table'])) {
-			$data['table'] = $this->fullTableName($data['table']);
+			if ($data['table'] instanceof Model) {
+				$databaseName = $data['table']->getDataSource()->config['database'];
+				if ($this->config['database'] == $databaseName) {
+					$data['table'] = $this->fullTableName($data['table']);
+				} else {
+					$data['table'] = $databaseName .'.'. $this->fullTableName($data['table']);
+				}
+			} else {
+				$data['table'] = $this->fullTableName($data['table']);
+			}
 		}
 		return $this->renderJoinStatement($data);
 	}
@@ -2741,8 +2750,8 @@ class DboSource extends DataSource {
 		$sql = "INSERT INTO {$table} ({$fields}) VALUES ({$holder})";
 		$statement = $this->_connection->prepare($sql);
 		$this->begin();
-		for ($x = 0; $x < $count; $x++) {
-			$statement->execute($values[$x]);
+		foreach ($values as $value) {
+			$statement->execute($value);
 			$statement->closeCursor();
 		}
 		return $this->commit();
