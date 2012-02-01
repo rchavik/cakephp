@@ -343,7 +343,7 @@ class TimeHelper extends AppHelper {
  */
 	public function isToday($dateString, $timezone = null) {
 		$date = $this->fromString($dateString, $timezone);
-		return $date->format('Y-m-d') == date_create('now', $date->getTimezone())->format('Y-m-d');
+		return $date->format('Y-m-d') == date_create('now')->format('Y-m-d');
 	}
 
 /**

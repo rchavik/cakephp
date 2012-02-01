@@ -478,8 +478,26 @@ class TimeHelperTest extends CakeTestCase {
 		$result = $this->Time->isToday('-1 day');
 		$this->assertFalse($result);
 
-		$date = new DateTime('01:00:00', new DateTimeZone('UTC'));
+		$utc = new DateTimeZone('UTC');
+		$newYork = new DateTimeZone('America/New_York');
+		$jakarta = new DateTimeZone('Asia/Jakarta');
+
+		$date = new DateTime('01:00:00', $utc);
 		$this->assertFalse($this->Time->isToday($date, 'America/New_York'));
+
+		$date = new DateTime('01:00:00', $utc);
+		$this->assertFalse($this->Time->isToday($date, $newYork));
+
+		$date = new DateTime('01:00:00', $utc);
+		$date->setTimeZone($newYork);
+		$this->assertTrue($this->Time->isToday($date));
+
+		$date = new DateTime('01:00:00', $utc);
+		$this->assertTrue($this->Time->isToday($date, 'Asia/Jakarta'));
+
+		$date = new DateTime('01:01:00', $utc);
+		$date->setTimeZone($jakarta);
+		$this->assertTrue($this->Time->isToday($date));
 	}
 
 /**
