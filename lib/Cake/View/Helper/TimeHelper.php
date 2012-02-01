@@ -468,7 +468,7 @@ class TimeHelper extends AppHelper {
  * @return string Formatted date string
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
  */
-	public function toAtom($dateString, $timezone = null) {
+	public function toAtom($dateString, $timezone = 'UTC') {
 		$date = $this->fromString($dateString, $timezone);
 		return $date->format('Y-m-d\TH:i:s\Z');
 	}

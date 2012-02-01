@@ -410,7 +410,7 @@ class TimeHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testToAtom() {
-		$this->assertEquals(date('Y-m-d\TH:i:s\Z'), $this->Time->toAtom(time()));
+		$this->assertEquals(gmdate('Y-m-d\TH:i:s\Z'), $this->Time->toAtom(time()));
 
 
 		foreach ($this->__timezones as $timezone) {
