@@ -751,6 +751,33 @@ class CakeTime {
 			$format = '%x';
 		}
 		$format = $this->convertSpecifiers($format, $date->format('U'));
-		return strftime($format, $date->format('U'));
+		return $this->_strftime($format, $date);
 	}
+
+/**
+ * Multibyte wrapper for strftime.
+ *
+ * Handles utf8_encoding the result of strftime when necessary.
+ *
+ * @param string $format Format string.
+ * @param int $date Timestamp to format.
+ * @return string formatted string with correct encoding.
+ */
+	protected function _strftime($format, $date) {
+		$format = strftime($format, $date->format('U'));
+		$encoding = Configure::read('App.encoding');
+
+		if (!empty($encoding) && $encoding === 'UTF-8') {
+			if (function_exists('mb_check_encoding')) {
+				$valid = mb_check_encoding($format, $encoding);
+			} else {
+				$valid = !Multibyte::checkMultibyte($format);
+			}
+			if (!$valid) {
+				$format = utf8_encode($format);
+			}
+		}
+		return $format;
+	}
+
 }
