@@ -404,19 +404,28 @@ class EntityContext implements ContextInterface
     {
         $parts = explode('.', $field);
         $entity = $this->entity($parts);
+        $schema = null;
+        $isNullable = true;
 
         $isNew = true;
         if ($entity instanceof EntityInterface) {
             $isNew = $entity->isNew();
+            $schema = $this->_getTable($entity)->getSchema();
         }
 
         $validator = $this->_getValidator($parts);
         $fieldName = array_pop($parts);
-        if (!$validator->hasField($fieldName)) {
+        if ($schema) {
+            $column = $schema->column($field);
+            $isNullable = $column['null'] === true;
+        }
+        if ($isNullable && !$validator->hasField($fieldName)) {
             return false;
         }
         if ($this->type($field) !== 'boolean') {
-            return $validator->isEmptyAllowed($fieldName, $isNew) === false;
+            $isRequired = $validator->isEmptyAllowed($fieldName, $isNew) === false;
+            $isRequired = $isRequired || !$isNullable;
+            return $isRequired;
         }
 
         return false;
@@ -541,7 +550,7 @@ class EntityContext implements ContextInterface
         $parts = explode('.', $field);
         $table = $this->_getTable($parts);
         $column = (array)$table->getSchema()->column(array_pop($parts));
-        $whitelist = ['length' => null, 'precision' => null];
+        $whitelist = ['length' => null, 'precision' => null, 'null' => null];
 
         return array_intersect_key($column, $whitelist);
     }
