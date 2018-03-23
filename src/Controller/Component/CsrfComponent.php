@@ -129,6 +129,10 @@ class CsrfComponent extends Component
         $expiry = new Time($this->_config['expiry']);
         $value = hash('sha512', Security::randomBytes(16), false);
 
+        if ($session = $request->session()) {
+            $session->write('_csrfToken', $value);
+        }
+
         $request->params['_csrfToken'] = $value;
         $response->cookie([
             'name' => $this->_config['cookieName'],
@@ -160,5 +164,13 @@ class CsrfComponent extends Component
         if ($post !== $cookie && $header !== $cookie) {
             throw new InvalidCsrfTokenException(__d('cake', 'CSRF token mismatch.'));
         }
+
+        if ($session = $request->session()) {
+            $token = $session->read('_csrfToken');
+            if ($post !== $token && $header !== $token) {
+                throw new InvalidCsrfTokenException(__d('cake', 'Invalid CSRF token'));
+            }
+        }
+
     }
 }

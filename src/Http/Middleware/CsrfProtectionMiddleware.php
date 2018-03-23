@@ -84,8 +84,10 @@ class CsrfProtectionMiddleware
      */
     public function __invoke(ServerRequest $request, Response $response, $next)
     {
+        $session = $request->session();
         $cookies = $request->getCookieParams();
         $cookieData = Hash::get($cookies, $this->_config['cookieName']);
+        $sessionData = $session ? $session->read('_csrfToken') : false;
 
         if (strlen($cookieData) > 0) {
             $params = $request->getAttribute('params');
@@ -94,8 +96,11 @@ class CsrfProtectionMiddleware
         }
 
         $method = $request->getMethod();
-        if ($method === 'GET' && $cookieData === null) {
+        if ($method === 'GET' && ($cookieData === null || ($session && !$sessionData))) {
             $token = $this->_createToken();
+            if ($session = $request->session()) {
+                $session->write('_csrfToken', $token);
+            }
             $request = $this->_addTokenToRequest($token, $request);
             $response = $this->_addTokenCookie($token, $request, $response);
 
@@ -192,6 +197,13 @@ class CsrfProtectionMiddleware
 
         if ($post !== $cookie && $header !== $cookie) {
             throw new InvalidCsrfTokenException(__d('cake', 'CSRF token mismatch.'));
+        }
+
+        if ($session = $request->session()) {
+            $token = $session->read('_csrfToken');
+            if ($post !== $token && $header !== $token) {
+                throw new InvalidCsrfTokenException(__d('cake', 'Invalid CSRF token'));
+            }
         }
     }
 }
