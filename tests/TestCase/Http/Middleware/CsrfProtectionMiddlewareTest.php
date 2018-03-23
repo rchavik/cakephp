@@ -130,6 +130,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
             'post' => ['a' => 'b'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $request->session()->write('_csrfToken', 'testing123');
         $response = new Response();
 
         // No exception means the test is valid
@@ -155,6 +156,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
             'post' => ['a' => 'b'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $request->session()->write('_csrfToken', 'testing123');
         $response = new Response();
 
         $middleware = new CsrfProtectionMiddleware();
@@ -176,6 +178,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
             'post' => ['_csrfToken' => 'testing123'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $request->session()->write('_csrfToken', 'testing123');
         $response = new Response();
 
         $closure = function ($request, $response) {
@@ -203,6 +206,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
             'post' => ['_csrfToken' => 'nope'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $request->session()->write('_csrfToken', ['post']);
         $response = new Response();
 
         $middleware = new CsrfProtectionMiddleware();
@@ -224,6 +228,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
             'post' => [],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $request->session()->write('_csrfToken', 'testing123');
         $response = new Response();
 
         $middleware = new CsrfProtectionMiddleware();
@@ -246,6 +251,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
             'post' => ['_csrfToken' => 'could-be-valid'],
             'cookies' => []
         ]);
+        $request->session()->write('_csrfToken', 'could-be-valid');
         $response = new Response();
 
         $middleware = new CsrfProtectionMiddleware();
@@ -299,6 +305,7 @@ class CsrfProtectionMiddlewareTest extends TestCase
             'cookies' => ['csrfToken' => 'nope', 'token' => 'yes'],
             'post' => ['_csrfToken' => 'no match', 'token' => 'yes'],
         ]);
+        $request->session()->write('_csrfToken', 'yes');
         $response = new Response();
 
         $middleware = new CsrfProtectionMiddleware([

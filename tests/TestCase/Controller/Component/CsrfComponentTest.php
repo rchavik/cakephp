@@ -156,6 +156,7 @@ class CsrfComponentTest extends TestCase
             'post' => ['a' => 'b'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $controller->request->session()->write('_csrfToken', 'testing123');
         $controller->response = new Response();
 
         $event = new Event('Controller.startup', $controller);
@@ -184,6 +185,7 @@ class CsrfComponentTest extends TestCase
             'post' => ['a' => 'b'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $controller->request->session()->write('_csrfToken', 'testing123');
         $controller->response = new Response();
 
         $event = new Event('Controller.startup', $controller);
@@ -209,6 +211,7 @@ class CsrfComponentTest extends TestCase
             'post' => ['_csrfToken' => 'testing123'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $controller->request->session()->write('_csrfToken', 'testing123');
         $controller->response = new Response();
 
         $event = new Event('Controller.startup', $controller);
@@ -236,6 +239,7 @@ class CsrfComponentTest extends TestCase
             'post' => ['_csrfToken' => 'nope'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $controller->request->session()->write('_csrfToken', 'testing123');
         $controller->response = new Response();
 
         $event = new Event('Controller.startup', $controller);
@@ -260,6 +264,7 @@ class CsrfComponentTest extends TestCase
             'post' => [],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $controller->request->session()->write('_csrfToken', 'testing123');
         $controller->response = new Response();
 
         $event = new Event('Controller.startup', $controller);
@@ -285,6 +290,7 @@ class CsrfComponentTest extends TestCase
             'post' => ['_csrfToken' => 'could-be-valid'],
             'cookies' => []
         ]);
+        $controller->request->session()->write('_csrfToken', 'could-be-valid');
         $controller->response = new Response();
 
         $event = new Event('Controller.startup', $controller);
@@ -308,6 +314,7 @@ class CsrfComponentTest extends TestCase
             'post' => ['_csrfToken' => 'nope'],
             'cookies' => ['csrfToken' => 'testing123']
         ]);
+        $controller->request->session()->write('_csrfToken', 'testing-123');
         $controller->response = new Response();
 
         $event = new Event('Controller.startup', $controller);
@@ -369,6 +376,7 @@ class CsrfComponentTest extends TestCase
             'cookies' => ['csrfToken' => 'nope', 'token' => 'yes'],
             'post' => ['_csrfToken' => 'no match', 'token' => 'yes'],
         ]);
+        $controller->request->session()->write('_csrfToken', 'yes');
         $controller->response = new Response();
 
         $component = new CsrfComponent($this->registry, [
